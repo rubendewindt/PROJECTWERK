@@ -1,0 +1,71 @@
+﻿/* Body background */
+body {
+    background-color: #fdf6e3; /* Warm beige */
+}
+
+/* Container styling */
+.login-container {
+    position: relative;
+    max-width: 400px;
+    margin: auto;
+    margin-top: 100px;
+    background-color: #fff8e1; /* Light yellow background for the form */
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Soft shadow */
+}
+
+    /* Heading */
+    .login-container h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #6d4c41; /* Warm brown for heading */
+    }
+
+/* Form styling */
+.form-group label {
+    color: #6d4c41; /* Warm brown for labels */
+}
+
+/* Input fields */
+.form-control {
+    border-color: #6d4c41; /* Warm brown border for input fields */
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #ff9800; /* Warm orange for primary button */
+    border-color: #ff9800; /* Warm orange border color */
+}
+
+    .btn-primary:hover {
+        background-color: #f57c00; /* Darker shade of orange on hover */
+        border-color: #f57c00;
+    }
+
+/* Link styling */
+.text-center a {
+    color: #ff9800; /* Warm orange for links */
+}
+
+.navbar {
+    background-color: #FFA500; /* Set the background color to orange */
+    box-shadow: 0 2px 4px rgba(0,0,0,.1); /* Add shadow to create depth */
+}
+
+.card {
+    height: 100%;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Added transition for background-color */
+    background-color: #fbf5eb; /* Slightly lighter shade than the background */
+}
+
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        background-color: #ece6d9; /* Slightly darker shade of beige for hover state */
+    }
+
+.card-body {
+    padding: 1.25rem;
+}

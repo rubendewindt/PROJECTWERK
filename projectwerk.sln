@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "projectwerk", "projectwerk.csproj", "{9C243E57-A203-4CE2-AC2A-90AD35E8B4D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C243E57-A203-4CE2-AC2A-90AD35E8B4D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C243E57-A203-4CE2-AC2A-90AD35E8B4D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C243E57-A203-4CE2-AC2A-90AD35E8B4D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C243E57-A203-4CE2-AC2A-90AD35E8B4D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E22148CF-D2A8-428D-8258-BD168F2CF880}
+	EndGlobalSection
+EndGlobal
