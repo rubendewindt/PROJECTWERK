@@ -1,5 +1,7 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 using projectwerk.Data;
 using projectwerk.Models;
 
@@ -8,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -15,11 +18,119 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+// Seed the database with products and an order detail if necessary
+using (var serviceScope = app.Services.CreateScope())
+{
+    var serviceProvider = serviceScope.ServiceProvider;
+   
+    using ProjectwerkContext context = new ProjectwerkContext();
+    var dbContext = context;
+
+
+
+    // Ensure the database is created
+    dbContext.Database.EnsureCreated();
+
+    // Seed the database if necessary
+    if (!dbContext.Products.Any() && !dbContext.OrderDetails.Any())
+    {
+        dbContext.AddRange(
+            // Add products
+            new Product { Name = "soep van de dag", Price = 1.10M, ImageUrl = "/images/soep.jpg" },
+            new Product { Name = "stuk stokbrood", Price = 0.55M, ImageUrl = "/images/StukStokbrood.jpg" },
+            new Product { Name = "boter", Price = 0.35M, ImageUrl = "/images/Boter.jpg" },
+            new Product { Name = "pasta groot", Price = 5.50M, ImageUrl = "/images/PastaGroot.jpg" },
+            new Product { Name = "maaltijdsalade", Price = 6.00M, ImageUrl = "/images/MaaltijdSalade.jpg" },
+            new Product { Name = "panini", Price = 4.00M, ImageUrl = "/images/Panini.jpg" },
+            new Product { Name = "kaas / Groenten", Price = 2.85M, ImageUrl = "/images/KaasGoenten.jpg" },
+            new Product { Name = "Ham / Groenten", Price = 2.85M, ImageUrl = "/images/HamGroenten.jpg" },
+            new Product { Name = "Prepare / Groenten", Price = 2.85M, ImageUrl = "/images/PrepareGroenten.jpg" },
+            new Product { Name = "Smos / Groenten", Price = 3.10M, ImageUrl = "/images/SmosGroenten.jpg" },
+            new Product { Name = "Kip Currysalade / Groenten", Price = 3.10M, ImageUrl = "/images/KipCurrySaladeGroenten.jpg" },
+            new Product { Name = "Surimi / Groenten", Price = 3.10M, ImageUrl = "/images/SurimiGroennten.jpg" },
+            new Product { Name = "Gerookte Ham / Effi", Price = 4.00M, ImageUrl = "/images/GerookteHamEffi.jpg" },
+            new Product { Name = "Gerookte Zalm / Boursin", Price = 4.00M, ImageUrl = "/images/GerookteZalmBoursin.jpg" },
+            new Product { Name = "stuk fruit", Price = 0.35M, ImageUrl = "/images/StukFruit.jpg" },
+            new Product { Name = "yoghurt", Price = 1.30M, ImageUrl = "/images/Yoghurt.jpg" },
+            new Product { Name = "Home made dessert", Price = 2.20M, ImageUrl = "/images/HomeMadeDessert.jpg" },
+            new Product { Name = "Crazzy Berry", Price = 2.75M, ImageUrl = "/images/CrazzyBerry.jpg" },
+            new Product { Name = "Good Food", Price = 2.75M, ImageUrl = "/images/GoodFood.jpg" },
+            new Product { Name = "Muffin / Donut", Price = 1.45M, ImageUrl = "/images/MuffinDonut.jpg" },
+            new Product { Name = "gebak", Price = 1.65M, ImageUrl = "/images/Gebak.jpg" },
+            new Product { Name = "DessertVoorverpakt", Price = 1.30M, ImageUrl = "/images/DessertVoorverpakt.jpg" },
+            new Product { Name = "snoep", Price = 1.30M, ImageUrl = "/images/Snoep.jpg" },
+            new Product { Name = "Kinder Bueno", Price = 1.45M, ImageUrl = "/images/KinderBueno.jpg" },
+            new Product { Name = "Oxfam Chips / Chocolade", Price = 1.65M, ImageUrl = "/images/OxfamChipsChocolade.jpg" },
+            new Product { Name = "Innocent Smoothie", Price = 3.10M, ImageUrl = "/images/InnocentSmoothie.jpg" },
+            new Product { Name = "pet water (0,50L)", Price = 1.30M, ImageUrl = "/images/PetWater.jpg" },
+            new Product { Name = "Pet Frisdrank (0,50L)", Price = 1.75M, ImageUrl = "/images/PetFrisdrank.jpg" },
+            new Product { Name = "Pet Vruchtensap (0,35L)", Price = 1.75M, ImageUrl = "/images/PetVruchtensap.jpg" },
+            new Product { Name = "Brik Cecemel / Alpro", Price = 1.75M, ImageUrl = "/images/BrikCecemelAlpro.jpg" },
+            new Product { Name = "Blik Nalu (0,25L)", Price = 2.20M, ImageUrl = "/images/BlikNalu.jpg" },
+            new Product { Name = "Pet Ice Tea (0,50L)", Price = 2.75M, ImageUrl = "/images/PetIceTea.jpg" },
+            new Product { Name = "Pet Arizona Thee (0,50L)", Price = 2.75M, ImageUrl = "/images/PetArizonaThee.jpg" },
+            new Product { Name = "Pet Ice Tea (0,25L)", Price = 2.75M, ImageUrl = "/images/BlikRedBull.jpg" }
+        );
+
+        // Add OrderDetail item
+        OrderDetail item = new OrderDetail()
+        {
+            Quantity = 1,
+            Name = "soep van de dag",
+            Price = 1.10M,
+        };
+        dbContext.OrderDetails.Add(item);
+        dbContext.SaveChanges();
+    }
+}
+/*
+
+// Delete the items from the database if they exist
+using (var serviceScope = app.Services.CreateScope())
+{
+    var serviceProvider = serviceScope.ServiceProvider;
+    using ProjectwerkContext context = new ProjectwerkContext();
+   
+
+
+    using (var dbContext = context)
+    {
+        // Query the items to be deleted
+        var itemsToDelete = dbContext.Products
+            .Where(p => p.Name == "soep van de dag" || p.Name == "stuk stokbrood" || p.Name == "boter"
+                     || p.Name == "pasta groot" || p.Name == "maaltijdsalade" || p.Name == "panini"
+                     || p.Name == "kaas / Groenten" || p.Name == "Ham / Groenten" || p.Name == "Prepare / Groenten"
+                     || p.Name == "Smos / Groenten" || p.Name == "Kip Currysalade / Groenten" || p.Name == "Surimi / Groenten"
+                     || p.Name == "Gerookte Ham / Effi" || p.Name == "Gerookte Zalm / Boursin" || p.Name == "stuk fruit"
+                     || p.Name == "yoghurt" || p.Name == "Home made dessert" || p.Name == "Crazzy Berry"
+                     || p.Name == "Good Food" || p.Name == "Muffin / Donut" || p.Name == "gebak"
+                     || p.Name == "DessertVoorverpakt" || p.Name == "snoep" || p.Name == "Kinder Bueno"
+                     || p.Name == "Oxfam Chips / Chocolade" || p.Name == "Innocent Smoothie"
+                     || p.Name == "pet water (0,50L)" || p.Name == "Pet Frisdrank (0,50L)"
+                     || p.Name == "Pet Vruchtensap (0,35L)" || p.Name == "Brik Cecemel / Alpro"
+                     || p.Name == "Blik Nalu (0,25L)" || p.Name == "Pet Ice Tea (0,50L)"
+                     || p.Name == "Pet Arizona Thee (0,50L)" || p.Name == "Pet Ice Tea (0,25L)")
+            .ToList();
+
+        // Remove the items from the DbSet
+        dbContext.Products.RemoveRange(itemsToDelete);
+
+        // Save the changes to the database
+        dbContext.SaveChanges();
+    }
+}
+*/
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
 
 /*
 using ProjectwerkContext context = new ProjectwerkContext();
@@ -323,7 +434,7 @@ Product PetArizonaThee = new Product()
 {
     Name = "Pet Arizona Thee (0,50L)",
     Price = 2.75M,
-    ImageUrl = "/images/PetArizonaThee"
+    ImageUrl = "/images/PetArizonaThee.jpg"
 };
 
 context.Products.Add(PetArizonaThee);
@@ -337,10 +448,11 @@ Product BlikRedBull = new Product()
 
 context.Products.Add(BlikRedBull);
 context.SaveChanges();
-*/
+
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+*/
