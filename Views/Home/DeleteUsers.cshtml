@@ -1,4 +1,4 @@
-﻿@model List<projectwerk.Models.Product>
+﻿@model List<projectwerk.Models.User>
 
 @{
     Layout = null;
@@ -9,9 +9,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Producten - Broodjeszaak</title>
+    <title>Delete Users - Broodjeszaak</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/StyleSheet.css" />
 </head>
 <body>
@@ -41,6 +40,9 @@
                             <li class="nav-item">
                                 <a asp-controller="Home" asp-action="UserManagement" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">User Management</a>
                             </li>
+                            <li class="nav-item">
+                                <a asp-controller="Home" asp-action="DeleteUsers" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Delete Users</a>
+                            </li>
                         }
                     }
                     else
@@ -56,45 +58,39 @@
             </div>
         </div>
     </nav>
-    <div class="my-5"></div>
 
     <div class="container">
-        <h1>Products</h1>
-        <div class="row">
-            @foreach (var product in Model)
-            {
-                <div class="col-sm mb-3">
-                    <div class="card" style="width: 18rem;">
-                        <div class="card-body">
-                            <img class="card-img-top" src="@product.ImageUrl" alt="Card image cap">
-                            <h5 class="card-title">@product.Name</h5>
-                            <p class="card-text">@string.Format("{0:C}", product.Price)</p>
-                            <form asp-action="Increment" asp-controller="Home" method="post">
-                                <input type="hidden" name="id" value="@product.Id" />
-                                <button type="submit" class="btn btn-primary">+</button>
+        <h1>Delete Users</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.FirstName</td>
+                        <td>@user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <form asp-action="DeleteUser" method="post" class="d-inline">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
-                            <label id="label">@product.Quantity</label>
-                            <form asp-action="Decrement" asp-controller="Home" method="post">
-                                <input type="hidden" name="id" value="@product.Id" />
-                                <button type="submit" class="btn btn-primary">-</button>
-                            </form>
-                            @if (product.Quantity > 0)
-                            {
-                                <form asp-action="AddDataOrderDetails" asp-controller="Home" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@product.Id" />
-                                    <button type="submit" class="btn btn-primary">add</button>
-                                </form>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.7.2/bootstrap-icons.min.js"></script>
 </body>
 </html>

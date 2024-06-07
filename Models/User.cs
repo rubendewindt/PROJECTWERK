@@ -12,5 +12,6 @@ namespace projectwerk.Models
         public string Email { get; set; }
         public string Password { get; set; }
         public string Role { get; set; } = "User";  // Default value set to "User"
+        public bool IsApproved { get; set; } = false; // Add this line
     }
 }

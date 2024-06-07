@@ -12,7 +12,7 @@ using projectwerk.Data;
 namespace projectwerk.Migrations
 {
     [DbContext(typeof(ProjectwerkContext))]
-    [Migration("20240607163636_InitialCreate")]
+    [Migration("20240607172354_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,6 +119,11 @@ namespace projectwerk.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("LastName")
                         .IsRequired()

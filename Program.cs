@@ -48,7 +48,7 @@ using (var serviceScope = app.Services.CreateScope())
     context.Database.EnsureCreated();
 
     // Seed the database if necessary
-    if (!context.Products.Any() && !context.OrderDetails.Any() && !context.Users.Any())
+    if (!context.Products.Any() && !context.OrderDetails.Any())
     {
         context.AddRange(
             // Add products
@@ -112,7 +112,8 @@ using (var serviceScope = app.Services.CreateScope())
             Password = "admin",
             Address = "Admin Address",
             Phone = "1234567890",
-            Role = "Admin"
+            Role = "Admin",
+            IsApproved = true // Ensure admin user is approved
         };
         var normalUser = new User
         {
@@ -122,7 +123,8 @@ using (var serviceScope = app.Services.CreateScope())
             Password = "user",
             Address = "User Address",
             Phone = "0987654321",
-            Role = "User"
+            Role = "User",
+            IsApproved = false // Normal users need admin approval
         };
 
         context.Users.Add(adminUser);
@@ -133,11 +135,13 @@ using (var serviceScope = app.Services.CreateScope())
     }
 }
 
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
 
 
 

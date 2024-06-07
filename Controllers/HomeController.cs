@@ -35,11 +35,18 @@ namespace projectwerk.Controllers
             var user = _context.Users.FirstOrDefault(u => u.Email == loginData.Email && u.Password == loginData.Password);
             if (user != null)
             {
-                var claims = new List<Claim>
+                if (!user.IsApproved && user.Email != "admin@admin.com")
                 {
-                    new Claim(ClaimTypes.Name, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role)
-                };
+                    _logger.LogWarning($"User {loginData.Email} is not approved.");
+                    ModelState.AddModelError(string.Empty, "Your account is not approved yet.");
+                    return View("Index");
+                }
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -62,6 +69,8 @@ namespace projectwerk.Controllers
             }
         }
 
+
+
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -76,11 +85,13 @@ namespace projectwerk.Controllers
         [HttpPost]
         public IActionResult Registratie(User user)
         {
+            user.IsApproved = false; // Ensure new users are not approved by default
             _context.Users.Add(user);
             _context.SaveChanges();
 
             return View("Index");
         }
+
 
         [Authorize]
         public IActionResult Winkelkarretje()
@@ -194,6 +205,73 @@ namespace projectwerk.Controllers
             }
 
             return View(orders); // Pass the list of orders to the view
+        }
+
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult UserManagement()
+        {
+            var pendingUsers = _context.Users.Where(u => !u.IsApproved).ToList();
+            return View(pendingUsers);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult ApproveUser(int userId)
+        {
+            var user = _context.Users.Find(userId);
+            if (user != null)
+            {
+                user.IsApproved = true;
+                _context.SaveChanges();
+            }
+            return RedirectToAction("UserManagement");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult RejectUser(int userId)
+        {
+            var user = _context.Users.Find(userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("UserManagement");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult AssignRole(int userId, string role)
+        {
+            var user = _context.Users.Find(userId);
+            if (user != null)
+            {
+                user.Role = role;
+                _context.SaveChanges();
+            }
+            return RedirectToAction("UserManagement");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteUsers()
+        {
+            var users = _context.Users.ToList();
+            return View(users);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteUser(int userId)
+        {
+            var user = _context.Users.Find(userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("DeleteUsers");
         }
 
         public IActionResult Privacy()

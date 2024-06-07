@@ -19,7 +19,11 @@ namespace projectwerk.Data
         {
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
-                .HasDefaultValue("User"); // Ensure this matches your intended default constraint
+                .HasDefaultValue("User");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.IsApproved)
+                .HasDefaultValue(false); // Ensure this matches your intended default value
         }
     }
 }
