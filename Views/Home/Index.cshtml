@@ -28,6 +28,13 @@
             <button type="submit" class="btn btn-primary btn-block" id="loginBtn" disabled>Inloggen</button>
         </form>
 
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewBag.ErrorMessage
+            </div>
+        }
+
         <hr>
         <p class="text-center">Nog geen account? <a asp-controller="Home" asp-action="Registratie">Maak een account aan</a></p>
         <p class="text-center"><a href="#">Wachtwoord vergeten?</a></p>

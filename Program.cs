@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using projectwerk.Data;
 using projectwerk.Models;
 
@@ -9,7 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<ProjectwerkContext>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Home/Index";
+    });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+});
 
 var app = builder.Build();
 
@@ -23,23 +34,23 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Seed the database with products and an order detail if necessary
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Seed the database with products, order details, and users if necessary
 using (var serviceScope = app.Services.CreateScope())
 {
     var serviceProvider = serviceScope.ServiceProvider;
-   
-    using ProjectwerkContext context = new ProjectwerkContext();
-    var dbContext = context;
-
-
+    var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+    var context = serviceProvider.GetRequiredService<ProjectwerkContext>();
 
     // Ensure the database is created
-    dbContext.Database.EnsureCreated();
+    context.Database.EnsureCreated();
 
     // Seed the database if necessary
-    if (!dbContext.Products.Any() && !dbContext.OrderDetails.Any())
+    if (!context.Products.Any() && !context.OrderDetails.Any() && !context.Users.Any())
     {
-        dbContext.AddRange(
+        context.AddRange(
             // Add products
             new Product { Name = "soep van de dag", Price = 1.10M, ImageUrl = "/images/soep.jpg" },
             new Product { Name = "stuk stokbrood", Price = 0.55M, ImageUrl = "/images/StukStokbrood.jpg" },
@@ -77,6 +88,9 @@ using (var serviceScope = app.Services.CreateScope())
             new Product { Name = "Pet Ice Tea (0,25L)", Price = 2.75M, ImageUrl = "/images/BlikRedBull.jpg" }
         );
 
+        context.SaveChanges();
+        logger.LogInformation("Products seeded.");
+
         // Add OrderDetail item
         OrderDetail item = new OrderDetail()
         {
@@ -84,53 +98,49 @@ using (var serviceScope = app.Services.CreateScope())
             Name = "soep van de dag",
             Price = 1.10M,
         };
-        dbContext.OrderDetails.Add(item);
-        dbContext.SaveChanges();
+        context.OrderDetails.Add(item);
+
+        context.SaveChanges();
+        logger.LogInformation("Order details seeded.");
+
+        // Add predefined users
+        var adminUser = new User
+        {
+            FirstName = "Admin",
+            LastName = "User",
+            Email = "admin@admin.com",
+            Password = "admin",
+            Address = "Admin Address",
+            Phone = "1234567890",
+            Role = "Admin"
+        };
+        var normalUser = new User
+        {
+            FirstName = "Normal",
+            LastName = "User",
+            Email = "user@user.com",
+            Password = "user",
+            Address = "User Address",
+            Phone = "0987654321",
+            Role = "User"
+        };
+
+        context.Users.Add(adminUser);
+        context.Users.Add(normalUser);
+
+        context.SaveChanges();
+        logger.LogInformation("Users seeded.");
     }
 }
-/*
-
-// Delete the items from the database if they exist
-using (var serviceScope = app.Services.CreateScope())
-{
-    var serviceProvider = serviceScope.ServiceProvider;
-    using ProjectwerkContext context = new ProjectwerkContext();
-   
-
-
-    using (var dbContext = context)
-    {
-        // Query the items to be deleted
-        var itemsToDelete = dbContext.Products
-            .Where(p => p.Name == "soep van de dag" || p.Name == "stuk stokbrood" || p.Name == "boter"
-                     || p.Name == "pasta groot" || p.Name == "maaltijdsalade" || p.Name == "panini"
-                     || p.Name == "kaas / Groenten" || p.Name == "Ham / Groenten" || p.Name == "Prepare / Groenten"
-                     || p.Name == "Smos / Groenten" || p.Name == "Kip Currysalade / Groenten" || p.Name == "Surimi / Groenten"
-                     || p.Name == "Gerookte Ham / Effi" || p.Name == "Gerookte Zalm / Boursin" || p.Name == "stuk fruit"
-                     || p.Name == "yoghurt" || p.Name == "Home made dessert" || p.Name == "Crazzy Berry"
-                     || p.Name == "Good Food" || p.Name == "Muffin / Donut" || p.Name == "gebak"
-                     || p.Name == "DessertVoorverpakt" || p.Name == "snoep" || p.Name == "Kinder Bueno"
-                     || p.Name == "Oxfam Chips / Chocolade" || p.Name == "Innocent Smoothie"
-                     || p.Name == "pet water (0,50L)" || p.Name == "Pet Frisdrank (0,50L)"
-                     || p.Name == "Pet Vruchtensap (0,35L)" || p.Name == "Brik Cecemel / Alpro"
-                     || p.Name == "Blik Nalu (0,25L)" || p.Name == "Pet Ice Tea (0,50L)"
-                     || p.Name == "Pet Arizona Thee (0,50L)" || p.Name == "Pet Ice Tea (0,25L)")
-            .ToList();
-
-        // Remove the items from the DbSet
-        dbContext.Products.RemoveRange(itemsToDelete);
-
-        // Save the changes to the database
-        dbContext.SaveChanges();
-    }
-}
-*/
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+
+
 
 /*
 using ProjectwerkContext context = new ProjectwerkContext();

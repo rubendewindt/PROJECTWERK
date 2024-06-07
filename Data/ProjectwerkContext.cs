@@ -5,8 +5,6 @@ namespace projectwerk.Data
 {
     public class ProjectwerkContext : DbContext
     {
-
-
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<Product> Products { get; set; } = null!;
@@ -14,9 +12,14 @@ namespace projectwerk.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Projectwerk;Integrated Security = True;");
-
+            optionsBuilder.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Projectwerk;Integrated Security=True;");
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasDefaultValue("User"); // Ensure this matches your intended default constraint
+        }
     }
 }

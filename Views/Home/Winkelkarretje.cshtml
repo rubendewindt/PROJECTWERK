@@ -1,4 +1,5 @@
 ﻿@model List<projectwerk.Models.OrderDetail>
+
 @{
     Layout = null;
 }
@@ -15,7 +16,7 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand mx-auto" style="font-weight: bold; font-size: 20px; color: #4CAF50; asp-controller="Home" asp-action="Index">The Breadpit</a>
+            <a class="navbar-brand mx-auto" style="font-weight: bold; font-size: 20px; color: #4CAF50;" asp-controller="Home" asp-action="Index">The Breadpit</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -24,6 +25,27 @@
                     <li class="nav-item">
                         <a asp-controller="Home" asp-action="Producten" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Producten</a>
                     </li>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Logout" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Logout</a>
+                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Home" asp-action="AllOrders" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Admin</a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Index" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Home" asp-action="Registratie" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Register</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
