@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Manage Products";
     Layout = null;
+    var pendingUsers = (bool)ViewData["PendingUsers"];
+    var pendingOrders = (bool)ViewData["PendingOrders"];
 }
 
 <!DOCTYPE html>
@@ -39,13 +41,13 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown" id="admindrop">
                                     <a class="dropdown-item" asp-controller="Home" asp-action="AllOrders" style="color: #4CAF50;">All Orders</a>
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="UserManagement" style="color: #4CAF50;">User Management</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="UserManagement" style="@(pendingUsers ? "color: red;" : "color: #4CAF50;")">Approve User</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="DeleteUsers" style="color: #4CAF50;">Delete Users</a>
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="ManageRoles" style="color: #4CAF50;">Manage Roles</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="ManageRoles" style="color: #4CAF50;">Manage user Roles</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="CreateUser" style="color: #4CAF50;">Create User</a>
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="ManageOrders" style="color: #4CAF50;">Manage Orders</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="ManageOrders" style="color: #4CAF50;">Manage all Orders</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageProducts" style="color: #4CAF50;">Manage Products</a>
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="ReviewOrders" style="color: #4CAF50;">Review Orders</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="ReviewOrders" style="@(pendingOrders ? "color: red;" : "color: #4CAF50;")">Approve Orders</a>
                                 </div>
                             </li>
                         }
@@ -90,5 +92,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
 
 

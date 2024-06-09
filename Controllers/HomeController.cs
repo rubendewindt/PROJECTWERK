@@ -98,7 +98,7 @@ namespace projectwerk.Controllers
         {
             if (ModelState.IsValid)
             {
-                user.IsApproved = false; // Ensure new users are not approved by default
+                user.IsApproved = false; 
                 _context.Users.Add(user);
                 _context.SaveChanges();
 
@@ -111,46 +111,60 @@ namespace projectwerk.Controllers
         public IActionResult Winkelkarretje()
         {
             var orderDetails = _context.OrderDetails.ToList();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View(orderDetails);
         }
+
 
         [HttpPost]
         public IActionResult Checkout()
         {
-            var userEmail = User.Identity.Name; // Get the current user's email
+            var userEmail = User.Identity.Name; 
             var orderDetails = _context.OrderDetails.ToList();
             foreach (var orderDetail in orderDetails)
             {
-                // Create a new Order object using data from OrderDetail
+                
                 Order order = new Order()
                 {
-                    UserEmail = userEmail, // Set the user's email
+                    UserEmail = userEmail, 
                     Name = orderDetail.Name,
                     Price = orderDetail.Price,
                     Quantity = orderDetail.Quantity,
-                    OrderPlaced = DateTime.Now, // Set the order placed time to current datetime
-                    IsApproved = false // Set the order as not approved
+                    OrderPlaced = DateTime.Now, 
+                    IsApproved = false 
                 };
 
-                // Add the new order to the context
+                
                 _context.Orders.Add(order);
             }
 
             _context.SaveChanges();
 
-            // Save changes to the context to add new orders
+            
             _context.OrderDetails.RemoveRange(_context.OrderDetails);
             _context.SaveChanges();
 
             return RedirectToAction("OrderProcessing");
         }
 
-        // New action for order processing page
+
         [Authorize]
         public IActionResult OrderProcessing()
         {
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View();
         }
+
 
         [HttpPost]
         public IActionResult DeleteSelected(int[] selectedItems)
@@ -166,8 +180,18 @@ namespace projectwerk.Controllers
         public IActionResult Producten()
         {
             var products = _context.Products.ToList();
+            var cartNotEmpty = _context.OrderDetails.Any();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["CartNotEmpty"] = cartNotEmpty;
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View(products);
         }
+
+
 
         [HttpPost]
         public IActionResult Increment(int id)
@@ -207,9 +231,9 @@ namespace projectwerk.Controllers
                     Quantity = product.Quantity,
                 };
 
-                _context.OrderDetails.Add(item); // Add the new order detail to the context
-                product.Quantity = 0; // Reset product quantity
-                _context.SaveChanges(); // Save changes to the context
+                _context.OrderDetails.Add(item); 
+                product.Quantity = 0; 
+                _context.SaveChanges(); 
             }
 
             return RedirectToAction("Producten");
@@ -218,7 +242,9 @@ namespace projectwerk.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult AllOrders()
         {
-            var orders = _context.Orders.Where(o => o.IsApproved).ToList(); // Retrieve only approved orders from the database
+            var orders = _context.Orders.Where(o => o.IsApproved).ToList();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved && o.IsApproved == false);
 
             var time = DateTime.Now;
             if (time.Hour == 14 && time.Minute == 30 && !ordersDeleted)
@@ -228,15 +254,21 @@ namespace projectwerk.Controllers
                 ordersDeleted = true;
             }
 
-            return View(orders); // Pass the list of orders to the view
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
+            return View(orders);
         }
+
 
         [Authorize(Roles = "Admin")]
         public IActionResult ReviewOrders()
         {
-            var orders = _context.Orders.Where(o => !o.IsApproved).ToList(); // Retrieve all unapproved orders from the database
+            var orders = _context.Orders.Where(o => !o.IsApproved).ToList(); 
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = orders.Any();
 
-            // Ensure default order exists
+            
             if (!orders.Any(o => o.Id == 0))
             {
                 orders.Insert(0, new Order
@@ -246,12 +278,16 @@ namespace projectwerk.Controllers
                     Quantity = 1,
                     Price = 0m,
                     OrderPlaced = DateTime.MinValue,
-                    UserEmail = "default@default.com" // Set a default email
+                    UserEmail = "default@default.com" 
                 });
             }
 
-            return View(orders); // Pass the list of orders to the view
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
+            return View(orders); 
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -261,11 +297,11 @@ namespace projectwerk.Controllers
 
             foreach (var order in ordersToApprove)
             {
-                order.IsApproved = true; // Mark order as approved
+                order.IsApproved = true; 
             }
 
             _context.SaveChanges();
-            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+            return RedirectToAction("ReviewOrders"); 
         }
 
         [HttpPost]
@@ -284,7 +320,7 @@ namespace projectwerk.Controllers
             {
                 _logger.LogWarning($"Order with id: {id} not found.");
             }
-            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+            return RedirectToAction("ReviewOrders"); 
         }
 
         [HttpPost]
@@ -294,7 +330,7 @@ namespace projectwerk.Controllers
             if (id == 0)
             {
                 _logger.LogWarning("Attempt to delete default order ignored.");
-                return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+                return RedirectToAction("ReviewOrders"); 
             }
 
             var order = _context.Orders.Find(id);
@@ -303,7 +339,7 @@ namespace projectwerk.Controllers
                 _context.Orders.Remove(order);
                 _context.SaveChanges();
             }
-            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+            return RedirectToAction("ReviewOrders"); 
         }
 
         [HttpPost]
@@ -317,15 +353,20 @@ namespace projectwerk.Controllers
                 _context.SaveChanges();
                 _logger.LogInformation($"{ordersToDelete.Count} orders deleted successfully.");
             }
-            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+            return RedirectToAction("ReviewOrders"); 
         }
 
         [Authorize(Roles = "Admin")]
         public IActionResult UserManagement()
         {
             var pendingUsers = _context.Users.Where(u => !u.IsApproved).ToList();
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View(pendingUsers);
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -357,8 +398,15 @@ namespace projectwerk.Controllers
         public IActionResult ManageRoles()
         {
             var users = _context.Users.ToList();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View(users);
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -377,8 +425,15 @@ namespace projectwerk.Controllers
         public IActionResult DeleteUsers()
         {
             var users = _context.Users.ToList();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View(users);
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -396,8 +451,15 @@ namespace projectwerk.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult CreateUser()
         {
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View();
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -405,7 +467,7 @@ namespace projectwerk.Controllers
         {
             if (ModelState.IsValid)
             {
-                user.IsApproved = true; // Automatically approve new users created by admin
+                user.IsApproved = true; 
                 _context.Users.Add(user);
                 _context.SaveChanges();
                 return RedirectToAction("UserManagement");
@@ -417,8 +479,13 @@ namespace projectwerk.Controllers
         public IActionResult ManageOrders()
         {
             var orders = _context.Orders.Where(o => o.IsApproved).ToList();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
 
-            // Ensure default order exists
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
+            
             if (!orders.Any(o => o.Id == 0))
             {
                 orders.Insert(0, new Order
@@ -433,6 +500,7 @@ namespace projectwerk.Controllers
 
             return View(orders);
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -486,8 +554,15 @@ namespace projectwerk.Controllers
         public IActionResult ManageProducts()
         {
             var products = _context.Products.ToList();
+            var pendingUsers = _context.Users.Any(u => !u.IsApproved);
+            var pendingOrders = _context.Orders.Any(o => !o.IsApproved);
+
+            ViewData["PendingUsers"] = pendingUsers;
+            ViewData["PendingOrders"] = pendingOrders;
+
             return View(products);
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
@@ -504,7 +579,7 @@ namespace projectwerk.Controllers
             }
             else
             {
-                // Handle invalid price format (optional)
+                
             }
             return RedirectToAction("ManageProducts");
         }
