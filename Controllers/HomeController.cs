@@ -43,10 +43,10 @@ namespace projectwerk.Controllers
                 }
 
                 var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
-        };
+                {
+                    new Claim(ClaimTypes.Name, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role)
+                };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -69,8 +69,6 @@ namespace projectwerk.Controllers
             }
         }
 
-
-
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -91,7 +89,6 @@ namespace projectwerk.Controllers
 
             return View("Index");
         }
-
 
         [Authorize]
         public IActionResult Winkelkarretje()
@@ -207,7 +204,6 @@ namespace projectwerk.Controllers
             return View(orders); // Pass the list of orders to the view
         }
 
-
         [Authorize(Roles = "Admin")]
         public IActionResult UserManagement()
         {
@@ -241,17 +237,24 @@ namespace projectwerk.Controllers
             return RedirectToAction("UserManagement");
         }
 
+        [Authorize(Roles = "Admin")]
+        public IActionResult ManageRoles()
+        {
+            var users = _context.Users.ToList();
+            return View(users);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public IActionResult AssignRole(int userId, string role)
         {
             var user = _context.Users.Find(userId);
-            if (user != null)
+            if (user != null && user.Email != "admin@admin.com")
             {
                 user.Role = role;
                 _context.SaveChanges();
             }
-            return RedirectToAction("UserManagement");
+            return RedirectToAction("ManageRoles");
         }
 
         [Authorize(Roles = "Admin")]
@@ -274,6 +277,91 @@ namespace projectwerk.Controllers
             return RedirectToAction("DeleteUsers");
         }
 
+        [Authorize(Roles = "Admin")]
+        public IActionResult CreateUser()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult CreateUser(User user)
+        {
+            user.IsApproved = true; // Automatically approve new users created by admin
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            return RedirectToAction("UserManagement");
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult ManageOrders()
+        {
+            var orders = _context.Orders.ToList();
+
+            // Ensure default order exists
+            if (!orders.Any(o => o.Id == 0))
+            {
+                orders.Insert(0, new Order
+                {
+                    Id = 0,
+                    Name = "Default Order",
+                    Quantity = 1,
+                    Price = 0m,
+                    OrderPlaced = DateTime.MinValue
+                });
+            }
+
+            return View(orders);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult EditOrderQuantity(int id, int quantity)
+        {
+            _logger.LogInformation($"EditOrderQuantity called with id: {id}, quantity: {quantity}");
+            var existingOrder = _context.Orders.Find(id);
+            if (existingOrder != null)
+            {
+                existingOrder.Quantity = quantity;
+                _context.SaveChanges();
+                _logger.LogInformation("Order quantity updated successfully.");
+            }
+            else
+            {
+                _logger.LogWarning($"Order with id: {id} not found.");
+            }
+            return RedirectToAction("ManageOrders");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteOrder(int id)
+        {
+            if (id == 0)
+            {
+                _logger.LogWarning("Attempt to delete default order ignored.");
+                return RedirectToAction("ManageOrders");
+            }
+
+            var order = _context.Orders.Find(id);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("ManageOrders");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteSelectedOrders(int[] selectedOrderIds)
+        {
+            var ordersToDelete = _context.Orders.Where(o => selectedOrderIds.Contains(o.Id) && o.Id != 0).ToList();
+            _context.Orders.RemoveRange(ordersToDelete);
+            _context.SaveChanges();
+            return RedirectToAction("ManageOrders");
+        }
+
         public IActionResult Privacy()
         {
             return View();
@@ -286,3 +374,14 @@ namespace projectwerk.Controllers
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+

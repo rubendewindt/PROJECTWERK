@@ -1,4 +1,4 @@
-﻿@model List<projectwerk.Models.User>
+﻿@model projectwerk.Models.User
 
 @{
     Layout = null;
@@ -9,21 +9,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Users - Broodjeszaak</title>
+    <title>Create User - Broodjeszaak</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/StyleSheet.css" />
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand mx-auto" style="font-weight: bold; font-size: 20px; color: #4CAF50;" asp-controller="Home" asp-action="Producten">The Breadpit</a>
+            <a class="navbar-brand" style="font-weight: bold; font-size: 20px; color: #4CAF50;" asp-controller="Home" asp-action="Producten">The Breadpit</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse">
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a asp-controller="Home" asp-action="Producten" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Producten</a>
+                        <a asp-action="Winkelkarretje" class="nav-link active" aria-current="page" style="font-weight: bold; font-size: 20px; color: #4CAF50;">
+                            <i class="bi bi-cart"></i> Winkelkarretje
+                        </a>
                     </li>
                     @if (User.Identity.IsAuthenticated)
                     {
@@ -39,8 +41,8 @@
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown" id="admindrop">
                                     <a class="dropdown-item" asp-controller="Home" asp-action="AllOrders" style="color: #4CAF50;">All Orders</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="UserManagement" style="color: #4CAF50;">User Management</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="DeleteUsers" style="color: #4CAF50;">Delete Users</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageRoles" style="color: #4CAF50;">Manage Roles</a>
-                                    <a class="dropdown-item" asp-controller="Home" asp-action="CreateUser" style="color: #4CAF50;">Create User</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageOrders" style="color: #4CAF50;">Manage Orders</a>
                                 </div>
                             </li>
@@ -61,33 +63,41 @@
     </nav>
 
     <div class="container">
-        <h1>Delete Users</h1>
-        <table class="table">
-            <thead class="thead-dark">
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Model)
-                {
-                    <tr>
-                        <td>@user.FirstName</td>
-                        <td>@user.LastName</td>
-                        <td>@user.Email</td>
-                        <td>
-                            <form asp-action="DeleteUser" method="post" class="d-inline">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <h1>Create New User</h1>
+        <form asp-action="CreateUser" method="post">
+            <div class="form-group">
+                <label for="FirstName">First Name</label>
+                <input type="text" class="form-control" id="FirstName" name="FirstName" required>
+            </div>
+            <div class="form-group">
+                <label for="LastName">Last Name</label>
+                <input type="text" class="form-control" id="LastName" name="LastName" required>
+            </div>
+            <div class="form-group">
+                <label for="Address">Address</label>
+                <input type="text" class="form-control" id="Address" name="Address" required>
+            </div>
+            <div class="form-group">
+                <label for="Phone">Phone</label>
+                <input type="text" class="form-control" id="Phone" name="Phone" required>
+            </div>
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <input type="email" class="form-control" id="Email" name="Email" required>
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" class="form-control" id="Password" name="Password" required>
+            </div>
+            <div class="form-group">
+                <label for="Role">Role</label>
+                <select class="form-control" id="Role" name="Role">
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create User</button>
+        </form>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

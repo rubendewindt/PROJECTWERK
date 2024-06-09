@@ -12,8 +12,8 @@ using projectwerk.Data;
 namespace projectwerk.Migrations
 {
     [DbContext(typeof(ProjectwerkContext))]
-    [Migration("20240607172354_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240608190410_Create")]
+    partial class Create
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
