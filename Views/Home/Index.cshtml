@@ -19,21 +19,26 @@
         <form method="post" asp-action="Login" onsubmit="return validateForm()">
             <div class="form-group">
                 <label for="inputEmail">E-mailadres</label>
-                <input class="form-control" type="email" id="inputEmail" name="Email" placeholder="Voer uw e-mailadres in" required>
+                <input class="form-control @if(ViewData["ErrorMessage"] != null || ViewData["EmailError"] != null) {
+                <text>is-invalid</text>
+ }" type="email" id="inputEmail" name="Email" value="@Model?.Email" placeholder="Voer uw e-mailadres in" required>
+                @if (ViewData["ErrorMessage"] != null || ViewData["EmailError"] != null)
+                {
+                    <div class="invalid-feedback">@ViewData["ErrorMessage"] @ViewData["EmailError"]</div>
+                }
             </div>
             <div class="form-group">
                 <label for="inputPassword">Wachtwoord</label>
-                <input class="form-control" type="password" id="inputPassword" name="Password" placeholder="Voer uw wachtwoord in" required>
+                <input class="form-control @if(ViewData["ErrorMessage"] != null || ViewData["PasswordError"] != null) {
+                <text>is-invalid</text>
+ }" type="password" id="inputPassword" name="Password" placeholder="Voer uw wachtwoord in" required>
+                @if (ViewData["ErrorMessage"] != null || ViewData["PasswordError"] != null)
+                {
+                    <div class="invalid-feedback">@ViewData["ErrorMessage"] @ViewData["PasswordError"]</div>
+                }
             </div>
-            <button type="submit" class="btn btn-primary btn-block" id="loginBtn" disabled>Inloggen</button>
+            <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Inloggen</button>
         </form>
-
-        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-        {
-            <div class="alert alert-danger" role="alert">
-                @ViewBag.ErrorMessage
-            </div>
-        }
 
         <hr>
         <p class="text-center">Nog geen account? <a asp-controller="Home" asp-action="Registratie">Maak een account aan</a></p>
@@ -47,11 +52,31 @@
         function validateForm() {
             var email = document.getElementById("inputEmail").value;
             var password = document.getElementById("inputPassword").value;
-            if (email.trim() === "" || password.trim() === "") {
-                alert("Please fill in all fields.");
-                return false;
+            var isValid = true;
+
+            // Clear previous errors
+            $(".invalid-feedback").remove();
+            $(".is-invalid").removeClass("is-invalid");
+
+            if (email.trim() === "") {
+                var emailError = document.createElement("div");
+                emailError.className = "invalid-feedback";
+                emailError.innerText = "E-mailadres is verplicht.";
+                document.getElementById("inputEmail").classList.add("is-invalid");
+                document.getElementById("inputEmail").parentNode.appendChild(emailError);
+                isValid = false;
             }
-            return true;
+
+            if (password.trim() === "") {
+                var passwordError = document.createElement("div");
+                passwordError.className = "invalid-feedback";
+                passwordError.innerText = "Wachtwoord is verplicht.";
+                document.getElementById("inputPassword").classList.add("is-invalid");
+                document.getElementById("inputPassword").parentNode.appendChild(passwordError);
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         // Enable/disable login button based on input fields

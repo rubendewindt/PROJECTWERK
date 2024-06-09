@@ -16,44 +16,132 @@
 <body>
     <div class="login-container">
         <h2>Registratie</h2>
-        <form method="post" asp-action="Registratie">
+        <form method="post" asp-action="Registratie" onsubmit="return validateForm()">
             <div class="form-group">
                 <label asp-for="FirstName">First Name</label>
-                <input class="form-control" asp-for="FirstName" placeholder="voornaam">
+                <input class="form-control" asp-for="FirstName" id="inputFirstName" placeholder="voornaam">
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="LastName">Last Name</label>
-                <input class="form-control" asp-for="LastName" placeholder="achternaam">
+                <input class="form-control" asp-for="LastName" id="inputLastName" placeholder="achternaam">
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Address">Address</label>
-                <input class="form-control" asp-for="Address" placeholder="Address">
+                <input class="form-control" asp-for="Address" id="inputAddress" placeholder="Address">
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Phone">Phone</label>
-                <input class="form-control" asp-for="Phone" placeholder="04........">
+                <input class="form-control" asp-for="Phone" id="inputPhone" placeholder="04........">
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Email">Email</label>
-                <input class="form-control" asp-for="Email" placeholder="Email">
+                <input class="form-control" asp-for="Email" id="inputEmail" placeholder="Email">
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Password">Wachtwoord</label>
-                <input class="form-control" type="password" asp-for="Password" placeholder="Voer uw wachtwoord in">
+                <input class="form-control" type="password" asp-for="Password" id="inputPassword" placeholder="Voer uw wachtwoord in">
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">registreer</button>
+            <button type="submit" class="btn btn-primary btn-block" id="registerBtn" disabled>registreer</button>
         </form>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function validateForm() {
+            var firstName = document.getElementById("inputFirstName").value;
+            var lastName = document.getElementById("inputLastName").value;
+            var address = document.getElementById("inputAddress").value;
+            var phone = document.getElementById("inputPhone").value;
+            var email = document.getElementById("inputEmail").value;
+            var password = document.getElementById("inputPassword").value;
+            var isValid = true;
+
+            // Clear previous errors
+            $(".invalid-feedback").remove();
+            $(".is-invalid").removeClass("is-invalid");
+
+            if (firstName.trim() === "") {
+                var firstNameError = document.createElement("div");
+                firstNameError.className = "invalid-feedback";
+                firstNameError.innerText = "Voornaam is verplicht.";
+                document.getElementById("inputFirstName").classList.add("is-invalid");
+                document.getElementById("inputFirstName").parentNode.appendChild(firstNameError);
+                isValid = false;
+            }
+
+            if (lastName.trim() === "") {
+                var lastNameError = document.createElement("div");
+                lastNameError.className = "invalid-feedback";
+                lastNameError.innerText = "Achternaam is verplicht.";
+                document.getElementById("inputLastName").classList.add("is-invalid");
+                document.getElementById("inputLastName").parentNode.appendChild(lastNameError);
+                isValid = false;
+            }
+
+            if (address.trim() === "") {
+                var addressError = document.createElement("div");
+                addressError.className = "invalid-feedback";
+                addressError.innerText = "Adres is verplicht.";
+                document.getElementById("inputAddress").classList.add("is-invalid");
+                document.getElementById("inputAddress").parentNode.appendChild(addressError);
+                isValid = false;
+            }
+
+            if (phone.trim() === "") {
+                var phoneError = document.createElement("div");
+                phoneError.className = "invalid-feedback";
+                phoneError.innerText = "Telefoonnummer is verplicht.";
+                document.getElementById("inputPhone").classList.add("is-invalid");
+                document.getElementById("inputPhone").parentNode.appendChild(phoneError);
+                isValid = false;
+            }
+
+            if (email.trim() === "") {
+                var emailError = document.createElement("div");
+                emailError.className = "invalid-feedback";
+                emailError.innerText = "E-mailadres is verplicht.";
+                document.getElementById("inputEmail").classList.add("is-invalid");
+                document.getElementById("inputEmail").parentNode.appendChild(emailError);
+                isValid = false;
+            }
+
+            if (password.trim() === "") {
+                var passwordError = document.createElement("div");
+                passwordError.className = "invalid-feedback";
+                passwordError.innerText = "Wachtwoord is verplicht.";
+                document.getElementById("inputPassword").classList.add("is-invalid");
+                document.getElementById("inputPassword").parentNode.appendChild(passwordError);
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Enable/disable register button based on input fields
+        $(document).ready(function () {
+            $('#inputFirstName, #inputLastName, #inputAddress, #inputPhone, #inputEmail, #inputPassword').on('keyup', function () {
+                if ($('#inputFirstName').val().trim() !== "" &&
+                    $('#inputLastName').val().trim() !== "" &&
+                    $('#inputAddress').val().trim() !== "" &&
+                    $('#inputPhone').val().trim() !== "" &&
+                    $('#inputEmail').val().trim() !== "" &&
+                    $('#inputPassword').val().trim() !== "") {
+                    $('#registerBtn').prop('disabled', false);
+                } else {
+                    $('#registerBtn').prop('disabled', true);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
 

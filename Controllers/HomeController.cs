@@ -33,14 +33,26 @@ namespace projectwerk.Controllers
         {
             _logger.LogInformation($"Login attempt for user {loginData.Email} at {DateTime.Now}.");
 
+            if (string.IsNullOrEmpty(loginData.Email))
+            {
+                ViewData["EmailError"] = "E-mailadres is verplicht.";
+                return View("Index", loginData);
+            }
+
+            if (string.IsNullOrEmpty(loginData.Password))
+            {
+                ViewData["PasswordError"] = "Wachtwoord is verplicht.";
+                return View("Index", loginData);
+            }
+
             var user = _context.Users.FirstOrDefault(u => u.Email == loginData.Email && u.Password == loginData.Password);
             if (user != null)
             {
                 if (!user.IsApproved && user.Email != "admin@admin.com")
                 {
                     _logger.LogWarning($"User {loginData.Email} is not approved.");
-                    ModelState.AddModelError(string.Empty, "Your account is not approved yet.");
-                    return View("Index");
+                    ViewData["ErrorMessage"] = "Your account is not approved yet.";
+                    return View("Index", loginData);
                 }
 
                 var claims = new List<Claim>
@@ -65,8 +77,8 @@ namespace projectwerk.Controllers
             {
                 _logger.LogWarning($"User with email {loginData.Email} not found.");
                 _logger.LogWarning($"Invalid login attempt for user {loginData.Email} at {DateTime.Now}.");
-                ModelState.AddModelError(string.Empty, "Invalid email or password");
-                return View("Index");
+                ViewData["ErrorMessage"] = "Invalid email or password";
+                return View("Index", loginData);
             }
         }
 
@@ -84,11 +96,15 @@ namespace projectwerk.Controllers
         [HttpPost]
         public IActionResult Registratie(User user)
         {
-            user.IsApproved = false; // Ensure new users are not approved by default
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            if (ModelState.IsValid)
+            {
+                user.IsApproved = false; // Ensure new users are not approved by default
+                _context.Users.Add(user);
+                _context.SaveChanges();
 
-            return View("Index");
+                return View("Index");
+            }
+            return View(user);
         }
 
         [Authorize]
@@ -295,8 +311,12 @@ namespace projectwerk.Controllers
         public IActionResult DeleteSelectedOrders(int[] selectedOrderIds)
         {
             var ordersToDelete = _context.Orders.Where(o => selectedOrderIds.Contains(o.Id) && o.Id != 0).ToList();
-            _context.Orders.RemoveRange(ordersToDelete);
-            _context.SaveChanges();
+            if (ordersToDelete.Any())
+            {
+                _context.Orders.RemoveRange(ordersToDelete);
+                _context.SaveChanges();
+                _logger.LogInformation($"{ordersToDelete.Count} orders deleted successfully.");
+            }
             return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
         }
 
@@ -383,10 +403,14 @@ namespace projectwerk.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult CreateUser(User user)
         {
-            user.IsApproved = true; // Automatically approve new users created by admin
-            _context.Users.Add(user);
-            _context.SaveChanges();
-            return RedirectToAction("UserManagement");
+            if (ModelState.IsValid)
+            {
+                user.IsApproved = true; // Automatically approve new users created by admin
+                _context.Users.Add(user);
+                _context.SaveChanges();
+                return RedirectToAction("UserManagement");
+            }
+            return View(user);
         }
 
         [Authorize(Roles = "Admin")]
@@ -497,6 +521,7 @@ namespace projectwerk.Controllers
         }
     }
 }
+
 
 
 
