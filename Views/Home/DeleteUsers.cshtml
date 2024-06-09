@@ -83,10 +83,17 @@
                         <td>@user.LastName</td>
                         <td>@user.Email</td>
                         <td>
-                            <form asp-action="DeleteUser" method="post" class="d-inline">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
+                            @if (user.Email != "admin@admin.com")
+                            {
+                                <form asp-action="DeleteUser" method="post" class="d-inline">
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-danger" style="display:none" disabled>Delete</button>
+                            }
                         </td>
                     </tr>
                 }

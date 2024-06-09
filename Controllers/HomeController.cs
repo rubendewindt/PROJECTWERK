@@ -440,13 +440,14 @@ namespace projectwerk.Controllers
         public IActionResult DeleteUser(int userId)
         {
             var user = _context.Users.Find(userId);
-            if (user != null)
+            if (user != null && user.Email != "admin@admin.com")
             {
                 _context.Users.Remove(user);
                 _context.SaveChanges();
             }
             return RedirectToAction("DeleteUsers");
         }
+
 
         [Authorize(Roles = "Admin")]
         public IActionResult CreateUser()
