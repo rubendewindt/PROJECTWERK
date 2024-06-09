@@ -85,7 +85,7 @@ using (var serviceScope = app.Services.CreateScope())
             new Product { Name = "Blik Nalu (0,25L)", Price = 2.20M, ImageUrl = "/images/BlikNalu.jpg" },
             new Product { Name = "Pet Ice Tea (0,50L)", Price = 2.75M, ImageUrl = "/images/PetIceTea.jpg" },
             new Product { Name = "Pet Arizona Thee (0,50L)", Price = 2.75M, ImageUrl = "/images/PetArizonaThee.jpg" },
-            new Product { Name = "Pet Ice Tea (0,25L)", Price = 2.75M, ImageUrl = "/images/BlikRedBull.jpg" }
+            new Product { Name = "redbull (0,25L)", Price = 2.75M, ImageUrl = "/images/BlikRedBull.jpg" }
         );
 
         context.SaveChanges();
