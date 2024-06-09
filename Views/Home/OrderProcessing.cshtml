@@ -1,4 +1,4 @@
-﻿@model List<projectwerk.Models.User>
+﻿@model List<projectwerk.Models.Order>
 
 @{
     Layout = null;
@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Users - Broodjeszaak</title>
+    <title>Order Processing - Broodjeszaak</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/StyleSheet.css" />
 </head>
@@ -39,6 +39,7 @@
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown" id="admindrop">
                                     <a class="dropdown-item" asp-controller="Home" asp-action="AllOrders" style="color: #4CAF50;">All Orders</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="UserManagement" style="color: #4CAF50;">User Management</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="DeleteUsers" style="color: #4CAF50;">Delete Users</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageRoles" style="color: #4CAF50;">Manage Roles</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="CreateUser" style="color: #4CAF50;">Create User</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageOrders" style="color: #4CAF50;">Manage Orders</a>
@@ -61,39 +62,15 @@
             </div>
         </div>
     </nav>
-
     <div class="container">
-        <h1>Delete Users</h1>
-        <table class="table">
-            <thead class="thead-dark">
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Model)
-                {
-                    <tr>
-                        <td>@user.FirstName</td>
-                        <td>@user.LastName</td>
-                        <td>@user.Email</td>
-                        <td>
-                            <form asp-action="DeleteUser" method="post" class="d-inline">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <h1>Order Processing</h1>
+        <div class="alert alert-info" role="alert">
+            Your order is being processed. You will be notified once it is approved.
+        </div>
     </div>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+

@@ -2,17 +2,21 @@
 
 namespace projectwerk.Models
 {
-        public class Order
-        {
-            public int Id { get; set; }
+    public class Order
+    {
+        public int Id { get; set; }
 
-            public DateTime OrderPlaced { get; set; }
+        public DateTime OrderPlaced { get; set; }
 
-            public string Name { get; set; } 
-            public int Quantity { get; set; }
+        public string UserEmail { get; set; } 
 
-            [Column(TypeName = "decimal(6, 2)")]
-            public decimal Price { get; set; }
+        public string Name { get; set; }
+        public int Quantity { get; set; }
+
+        [Column(TypeName = "decimal(6, 2)")]
+        public decimal Price { get; set; }
+
+        public bool IsApproved { get; set; } 
     }
-  
+
 }

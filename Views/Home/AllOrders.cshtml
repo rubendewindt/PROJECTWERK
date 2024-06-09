@@ -43,6 +43,7 @@
                                     <a class="dropdown-item" asp-controller="Home" asp-action="CreateUser" style="color: #4CAF50;">Create User</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageOrders" style="color: #4CAF50;">Manage Orders</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageProducts" style="color: #4CAF50;">Manage Products</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="ReviewOrders" style="color: #4CAF50;">Review Orders</a>
                                 </div>
                             </li>
                         }
@@ -65,18 +66,20 @@
         <table class="table">
             <thead class="thead-dark">
                 <tr>
+                    <th>User</th>
                     <th>Name</th>
                     <th>Price for 1 </th>
                     <th>Quantity</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var orderDetail in Model)
+                @foreach (var order in Model)
                 {
                     <tr>
-                        <td>@orderDetail.Name</td>
-                        <td>@orderDetail.Price.ToString("C")</td>
-                        <td>@orderDetail.Quantity</td>
+                        <td>@order.UserEmail</td>
+                        <td>@order.Name</td>
+                        <td>@order.Price.ToString("C")</td>
+                        <td>@order.Quantity</td>
                     </tr>
                 }
             </tbody>
@@ -88,4 +91,3 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-

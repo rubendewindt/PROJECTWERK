@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using projectwerk.Data;
 
@@ -11,9 +12,10 @@ using projectwerk.Data;
 namespace projectwerk.Migrations
 {
     [DbContext(typeof(ProjectwerkContext))]
-    partial class ProjectwerkContextModelSnapshot : ModelSnapshot
+    [Migration("20240609121751_AddUserEmailToOrder")]
+    partial class AddUserEmailToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +31,6 @@ namespace projectwerk.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()

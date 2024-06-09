@@ -101,16 +101,19 @@ namespace projectwerk.Controllers
         [HttpPost]
         public IActionResult Checkout()
         {
+            var userEmail = User.Identity.Name; // Get the current user's email
             var orderDetails = _context.OrderDetails.ToList();
             foreach (var orderDetail in orderDetails)
             {
                 // Create a new Order object using data from OrderDetail
                 Order order = new Order()
                 {
+                    UserEmail = userEmail, // Set the user's email
                     Name = orderDetail.Name,
                     Price = orderDetail.Price,
                     Quantity = orderDetail.Quantity,
-                    OrderPlaced = DateTime.Now // Set the order placed time to current datetime
+                    OrderPlaced = DateTime.Now, // Set the order placed time to current datetime
+                    IsApproved = false // Set the order as not approved
                 };
 
                 // Add the new order to the context
@@ -123,7 +126,14 @@ namespace projectwerk.Controllers
             _context.OrderDetails.RemoveRange(_context.OrderDetails);
             _context.SaveChanges();
 
-            return RedirectToAction("Winkelkarretje");
+            return RedirectToAction("OrderProcessing");
+        }
+
+        // New action for order processing page
+        [Authorize]
+        public IActionResult OrderProcessing()
+        {
+            return View();
         }
 
         [HttpPost]
@@ -192,7 +202,7 @@ namespace projectwerk.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult AllOrders()
         {
-            var orders = _context.Orders.ToList(); // Retrieve all orders from the database
+            var orders = _context.Orders.Where(o => o.IsApproved).ToList(); // Retrieve only approved orders from the database
 
             var time = DateTime.Now;
             if (time.Hour == 14 && time.Minute == 30 && !ordersDeleted)
@@ -203,6 +213,91 @@ namespace projectwerk.Controllers
             }
 
             return View(orders); // Pass the list of orders to the view
+        }
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult ReviewOrders()
+        {
+            var orders = _context.Orders.Where(o => !o.IsApproved).ToList(); // Retrieve all unapproved orders from the database
+
+            // Ensure default order exists
+            if (!orders.Any(o => o.Id == 0))
+            {
+                orders.Insert(0, new Order
+                {
+                    Id = 0,
+                    Name = "Default Order",
+                    Quantity = 1,
+                    Price = 0m,
+                    OrderPlaced = DateTime.MinValue,
+                    UserEmail = "default@default.com" // Set a default email
+                });
+            }
+
+            return View(orders); // Pass the list of orders to the view
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult ApproveOrders(int[] selectedOrderIds)
+        {
+            var ordersToApprove = _context.Orders.Where(o => selectedOrderIds.Contains(o.Id)).ToList();
+
+            foreach (var order in ordersToApprove)
+            {
+                order.IsApproved = true; // Mark order as approved
+            }
+
+            _context.SaveChanges();
+            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult EditOrderQuantity(int id, int quantity)
+        {
+            _logger.LogInformation($"EditOrderQuantity called with id: {id}, quantity: {quantity}");
+            var existingOrder = _context.Orders.Find(id);
+            if (existingOrder != null)
+            {
+                existingOrder.Quantity = quantity;
+                _context.SaveChanges();
+                _logger.LogInformation("Order quantity updated successfully.");
+            }
+            else
+            {
+                _logger.LogWarning($"Order with id: {id} not found.");
+            }
+            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteOrder(int id)
+        {
+            if (id == 0)
+            {
+                _logger.LogWarning("Attempt to delete default order ignored.");
+                return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+            }
+
+            var order = _context.Orders.Find(id);
+            if (order != null)
+            {
+                _context.Orders.Remove(order);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteSelectedOrders(int[] selectedOrderIds)
+        {
+            var ordersToDelete = _context.Orders.Where(o => selectedOrderIds.Contains(o.Id) && o.Id != 0).ToList();
+            _context.Orders.RemoveRange(ordersToDelete);
+            _context.SaveChanges();
+            return RedirectToAction("ReviewOrders"); // Stay on the ReviewOrders page
         }
 
         [Authorize(Roles = "Admin")]
@@ -297,7 +392,7 @@ namespace projectwerk.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult ManageOrders()
         {
-            var orders = _context.Orders.ToList();
+            var orders = _context.Orders.Where(o => o.IsApproved).ToList();
 
             // Ensure default order exists
             if (!orders.Any(o => o.Id == 0))
@@ -317,9 +412,9 @@ namespace projectwerk.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public IActionResult EditOrderQuantity(int id, int quantity)
+        public IActionResult EditOrderQuantityInManageOrders(int id, int quantity)
         {
-            _logger.LogInformation($"EditOrderQuantity called with id: {id}, quantity: {quantity}");
+            _logger.LogInformation($"EditOrderQuantityInManageOrders called with id: {id}, quantity: {quantity}");
             var existingOrder = _context.Orders.Find(id);
             if (existingOrder != null)
             {
@@ -336,7 +431,7 @@ namespace projectwerk.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteOrder(int id)
+        public IActionResult DeleteOrderInManageOrders(int id)
         {
             if (id == 0)
             {
@@ -355,7 +450,7 @@ namespace projectwerk.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteSelectedOrders(int[] selectedOrderIds)
+        public IActionResult DeleteSelectedOrdersInManageOrders(int[] selectedOrderIds)
         {
             var ordersToDelete = _context.Orders.Where(o => selectedOrderIds.Contains(o.Id) && o.Id != 0).ToList();
             _context.Orders.RemoveRange(ordersToDelete);
@@ -402,6 +497,7 @@ namespace projectwerk.Controllers
         }
     }
 }
+
 
 
 

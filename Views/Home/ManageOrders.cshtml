@@ -47,7 +47,9 @@
                                     <a class="dropdown-item" asp-controller="Home" asp-action="DeleteUsers" style="color: #4CAF50;">Delete Users</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageRoles" style="color: #4CAF50;">Manage Roles</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="CreateUser" style="color: #4CAF50;">Create User</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="ManageOrders" style="color: #4CAF50;">Manage Orders</a>
                                     <a class="dropdown-item" asp-controller="Home" asp-action="ManageProducts" style="color: #4CAF50;">Manage Products</a>
+                                    <a class="dropdown-item" asp-controller="Home" asp-action="ReviewOrders" style="color: #4CAF50;">Review Orders</a>
                                 </div>
                             </li>
                         }
@@ -60,11 +62,12 @@
     <div class="container mt-5">
         <h1>Manage Orders</h1>
 
-        <form asp-controller="Home" asp-action="DeleteSelectedOrders" method="post">
+        <form asp-controller="Home" asp-action="DeleteSelectedOrdersInManageOrders" method="post">
             <table class="table table-bordered">
                 <thead class="thead-dark">
                     <tr>
                         <th>Select</th>
+                        <th>User Email</th>
                         <th>Id</th>
                         <th>Name</th>
                         <th>Quantity</th>
@@ -82,10 +85,11 @@
                                     <input type="checkbox" name="selectedOrderIds" value="@order.Id" />
                                 }
                             </td>
+                            <td>@order.UserEmail</td>
                             <td>@order.Id</td>
                             <td>@order.Name</td>
                             <td>
-                                <form asp-controller="Home" asp-action="EditOrderQuantity" method="post" class="d-inline">
+                                <form asp-controller="Home" asp-action="EditOrderQuantityInManageOrders" method="post" class="d-inline">
                                     <input type="hidden" name="Id" value="@order.Id" />
                                     <input type="number" name="Quantity" value="@order.Quantity" class="form-control d-inline" style="width: auto;" />
                                     <button type="submit" class="btn btn-primary" @(order.Id == 0 ? "disabled" : "")>Save</button>
@@ -93,7 +97,7 @@
                             </td>
                             <td>@order.Price.ToString("C")</td>
                             <td>
-                                <form asp-controller="Home" asp-action="DeleteOrder" method="post" class="d-inline">
+                                <form asp-controller="Home" asp-action="DeleteOrderInManageOrders" method="post" class="d-inline">
                                     <input type="hidden" name="Id" value="@order.Id" />
                                     <button type="submit" class="btn btn-danger" @(order.Id == 0 ? "disabled" : "")>Delete</button>
                                 </form>
