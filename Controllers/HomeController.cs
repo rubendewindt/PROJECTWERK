@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using System.Globalization;
 
 namespace projectwerk.Controllers
 {
@@ -362,6 +363,33 @@ namespace projectwerk.Controllers
             return RedirectToAction("ManageOrders");
         }
 
+        [Authorize(Roles = "Admin")]
+        public IActionResult ManageProducts()
+        {
+            var products = _context.Products.ToList();
+            return View(products);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public IActionResult UpdateProductPrice(int id, string newPrice)
+        {
+            if (decimal.TryParse(newPrice.Replace(",", "."), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var parsedPrice))
+            {
+                var product = _context.Products.Find(id);
+                if (product != null)
+                {
+                    product.Price = parsedPrice;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                // Handle invalid price format (optional)
+            }
+            return RedirectToAction("ManageProducts");
+        }
+
         public IActionResult Privacy()
         {
             return View();
@@ -374,6 +402,9 @@ namespace projectwerk.Controllers
         }
     }
 }
+
+
+
 
 
 

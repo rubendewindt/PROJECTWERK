@@ -1,6 +1,7 @@
-﻿@model List<projectwerk.Models.OrderDetail>
+﻿@model List<projectwerk.Models.Product>
 
 @{
+    ViewData["Title"] = "Manage Products";
     Layout = null;
 }
 
@@ -9,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winkelkarretje - Broodjeszaak</title>
+    <title>Manage Products - Broodjeszaak</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/StyleSheet.css" />
 </head>
@@ -48,50 +49,39 @@
                             </li>
                         }
                     }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a asp-controller="Home" asp-action="Index" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Home" asp-action="Registratie" class="nav-link" style="font-weight: bold; font-size: 20px; color: #4CAF50;">Register</a>
-                        </li>
-                    }
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        <h1 class="mt-4 mb-4">Winkelkarretje</h1>
-        <form method="post" asp-action="DeleteSelected" asp-controller="Home">
-            <table class="table table-striped">
-                <thead class="thead-dark">
+    <div class="container mt-5">
+        <h1>Manage Products</h1>
+
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Current Price</th>
+                    <th>New Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
                     <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Select</th>
+                        <td>@product.Name</td>
+                        <td>@product.Price.ToString("C")</td>
+                        <td>
+                            <form asp-controller="Home" asp-action="UpdateProductPrice" method="post" class="form-inline">
+                                <input type="hidden" name="Id" value="@product.Id" />
+                                <input type="text" name="NewPrice" class="form-control" style="width: 100px; margin-right: 10px;" value="@product.Price.ToString("0.00")" />
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Price.ToString("C")</td>
-                            <td>@item.Quantity</td>
-                            <td><input type="checkbox" name="selectedItems[]" value="@item.Id" /></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            <button type="submit" class="btn btn-danger">Delete Selected</button>
-        </form>
-        <form method="post" asp-action="Checkout" asp-controller="Home" class="mt-4">
-            <button type="submit" class="btn btn-success">Checkout</button>
-            <h3 class="mt-4">Total Price: @Model.Sum(item => item.Price * item.Quantity).ToString("C")</h3>
-        </form>
+                }
+            </tbody>
+        </table>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -99,3 +89,5 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+
